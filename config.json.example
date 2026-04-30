@@ -1,0 +1,126 @@
+{
+  "wifi": { // WiFi network configuration
+    "ssid": "your_wifi_ssid", // Your WiFi network name (SSID)
+    "password": "your_wifi_password" // Your WiFi password
+  },
+  "mqtt": { // MQTT broker configuration for Home Assistant integration
+    "server": "192.168.1.100", // MQTT broker IP address or hostname
+    "port": 1883, // MQTT broker port (default: 1883, 8883 for SSL)
+    "user": "mqtt_username", // MQTT username (leave empty if no authentication)
+    "password": "mqtt_password", // MQTT password (leave empty if no authentication)
+    "client_id": "esp32_temp_sensor", // Unique MQTT client ID for this device
+    "publish_interval": 10, // MQTT publish interval in seconds (default: 10 seconds)
+    "topics": { // MQTT topic names for sensor data
+      "temp1": "temperature_sensor_1", // Topic name for DS18B20 sensor 1
+      "temp2": "temperature_sensor_2", // Topic name for DS18B20 sensor 2
+      "sht4x": "sht4x_sensor", // Topic name for SHT4x sensor (temperature & humidity)
+      "max31855k": "max31855k_sensor" // Topic name for MAX31855K thermocouple sensor
+    }
+  },
+  "sensors": { // Sensor configuration
+    "sensor_count": 2, // Number of DS18B20 sensors to monitor (1-32)
+    "one_wire_bus_count": 1, // Number of OneWire buses to use (1-4)
+    "one_wire_pins": [4], // GPIO pins for each OneWire bus (e.g., [4] or [4,5,6,7])
+    "sensor_addresses": { // Hex addresses of your DS18B20 sensors
+      "sensor1_address": "28d16871000000e5", // DS18B20 sensor 1 address
+      "sensor2_address": "28ff641f4995f2af" // DS18B20 sensor 2 address
+    },
+    "viable_scan_pins": "4,5,6,7,12,13,14,15,16,17,18", // Comma-separated list of pins to scan during full sensor detection
+
+    // SHT40 Temperature & Humidity Sensor Configuration
+    "sht4x_enabled": false, // Enable/disable SHT40 sensor (true/false)
+    "sht4x_sda_pin": 8, // I2C SDA pin for SHT40 sensor
+    "sht4x_scl_pin": 9, // I2C SCL pin for SHT40 sensor
+    "sht4x_i2c_address": "44", // I2C address ("44" or "45", default: "44")
+    "sht4x_precision": 2, // Measurement precision (0=low, 1=medium, 2=high, default: 2)
+    "sht4x_heater_power": 0, // Heater power level (0=none, 1=low 20mW, 2=medium 110mW, 3=high 200mW, default: 0)
+    "sht4x_heater_duration": 0, // Heater duration (0=short 0.1s, 1=long 1s, default: 0)
+    "sht4x_heating_strategy": 0, // Heating strategy (0=none, 1=alternating, default: 0)
+    "sht4x_measurement_interval": 60.0, // Measurement interval in seconds for heating strategy (default: 60.0)
+
+    // MAX31855K Thermocouple Sensor Configuration
+    "max31855k_enabled": false, // Enable/disable MAX31855K sensor (true/false)
+    "max31855k_do_pin": 13, // Data Out (DO/MISO) pin (default/locked: GPIO13)
+    "max31855k_clk_pin": 12, // Clock (CLK/SCK) pin (default/locked: GPIO12)
+    "max31855k_cs_pin": 11, // Chip Select (CS) pin (default/locked: GPIO11)
+
+    "ds18b20_measurement_interval": 60.0 // DS18B20 sensor measurement interval in seconds (default: 60.0)
+  },
+  "relay": { // Relay system configuration
+    "enabled": true, // Master switch to enable/disable relay system (true/false)
+    "pins_low": [15, 16], // GPIO pins for LOW relay state (array of pin numbers)
+    "pins_mid": [17, 18], // GPIO pins for MID relay state (array of pin numbers)
+    "pins_high": [19, 20], // GPIO pins for HIGH relay state (array of pin numbers)
+    "timeout_ms": 5000, // Safety timeout between relay state changes (1000-30000ms, default: 5000ms = 5 seconds)
+    "safety_enabled": true, // Enable safety mechanism to monitor temperature and control relay (true/false)
+    "safety_sensor_number": 1, // Sensor number to monitor for safety (1-based index, e.g., 1 for first sensor)
+    "safety_temperature_threshold": 80.0, // Temperature threshold in Celsius to trigger safety shutdown (e.g., 80.0)
+    "safety_duration_seconds": 300, // Duration in seconds to wait before safety shutdown after threshold exceeded (e.g., 300 = 5 minutes)
+    "garage_relay_mode_enabled": false // Enable garage relay mode for specialized garage door control (true/false, default: false)
+  },
+  "device_info": { // Device information for Home Assistant integration
+    "name": "ESP32 Temperature Sensor", // Friendly device name
+    "manufacturer": "Espressif", // Device manufacturer
+    "model": "ESP32-S3" // Device model
+  },
+  "network": { // Network configuration for device discovery and security
+    "hostname": "esp32-sensor", // Device hostname for .local discovery (e.g., "esp32-sensor" becomes "esp32-sensor.local")
+    "mdns_enabled": true // Enable mDNS responder for local network discovery (true/false)
+  },
+  "security": { // Security configuration for authentication and encryption
+    "auth_enabled": false, // Enable HTTP Basic Authentication for web interface (true/false, default: false)
+    "username": "admin", // Username for authentication (max 32 characters)
+    "password_hash": "", // Hashed password for authentication (leave empty to disable, max 128 characters)
+    "ip_whitelist_enabled": false, // Enable IP whitelist to restrict access (true/false, default: false)
+    "ip_ranges": [] // IP ranges to allow access (e.g., ["192.168.1.100", "192.168.1.50-60"]) Last number is the number of additional IPs in the range (e.g., 192.168.1.50-60 means IPs 192.168.1.50 through 192.168.1.110).
+  },
+  "ntp": { // NTP configuration for time synchronization (always enabled)
+    "servers": ["pool.ntp.org", "time.nist.gov", "time.google.com"], // NTP server addresses (up to 3)
+    "timezone": "CET-1CEST,M3.5.0,M10.5.0/3", // POSIX timezone string (default: Central European Time)
+
+    // Optional DS3231 RTC module configuration (fallback time source)
+    "rtc": {
+      "enabled": true, // Enable/disable DS3231 RTC support
+      "sda_pin": 1, // DS3231 I2C SDA pin "D" (dedicated bus)
+      "scl_pin": 2, // DS3231 I2C SCL pin "C" (dedicated bus)
+      "i2c_address": "0x68", // DS3231 I2C address (usually 0x68)
+      "store_utc": false, // If false, RTC stores local time in ntp.timezone (DST caveat). If true, RTC stores UTC.
+      "set_system_time_on_boot": true, // If true, ESP32 will read DS3231 early at boot to seed system time
+      "sync_rtc_from_ntp": true, // If true, periodically update DS3231 after successful NTP sync
+      "max_step_seconds": 5 // Only update DS3231 if drift exceeds this threshold
+    }
+  },
+  "schedules": { // Relay time scheduling configuration
+    "enabled": true, // Enable/disable scheduling system
+    "entries": [ // Array of time range entries
+      {
+        "day": 0, // Day of week (0=Monday, 1=Tuesday, ..., 6=Sunday)
+        "start_time": "06:00", // Start time in HH:MM format (24-hour)
+        "start_level": "low", // Relay level at start ("off", "low", "mid", or "high")
+        "end_time": "12:00" // End time in HH:MM format (24-hour) - relay always turns OFF
+      },
+      {
+        "day": 0, // Monday - evening schedule
+        "start_time": "18:00", // 6:00 PM
+        "start_level": "off", // Turn off at start
+        "end_time": "22:00" // 10:00 PM - relay always turns OFF
+      },
+      {
+        "day": 1, // Tuesday
+        "start_time": "08:00", // 8:00 AM
+        "start_level": "mid", // MID level
+        "end_time": "18:00" // 6:00 PM - relay always turns OFF
+      }
+    ]
+  },
+  "debug": { // Debug logging configuration for performance tuning
+    "logging_enabled": false // Global debug logging enable/disable (true/false, default: false for performance)
+  },
+  "logging": { // Logging configuration for file logging performance
+    "flush_interval_seconds": 30 // Interval for flushing log buffers in seconds (default: 30 seconds)
+  },
+  "fallback": {
+    "enabled": false,
+    "timeout_minutes": 15
+  }
+}

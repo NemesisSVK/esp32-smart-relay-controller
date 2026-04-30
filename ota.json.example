@@ -1,0 +1,8 @@
+{
+  "ota": {
+    "password": "CHANGE_ME",
+    "window_seconds": 600,
+    "port": 3232
+  }
+}
+
